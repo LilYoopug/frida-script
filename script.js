@@ -185,16 +185,30 @@ Java.perform(function() {
                 tabContent.setOrientation(1); // VERTICAL
                 tabContent.setVisibility(index === 0 ? classLoader.View.VISIBLE.value : classLoader.View.GONE.value);
                 
+                tabButtons.push(tab);
                 tabContents.push(tabContent);
+                tabBar.addView(tab);
                 
-                // Click listener for tab
+                return { tab: tab, index: index, name: name };
+            }
+            
+            // Create 4 tabs
+            const tabData = [];
+            tabData.push(createTab(0, 'Main'));
+            tabData.push(createTab(1, 'Player'));
+            tabData.push(createTab(2, 'World'));
+            tabData.push(createTab(3, 'Misc'));
+            
+            // Now set up click listeners after all tabs are created
+            for (let t = 0; t < tabData.length; t++) {
+                const data = tabData[t];
                 const TabClickListener = Java.registerClass({
                     name: 'com.terminal.tab' + Math.random().toString(36).substr(2, 9),
                     implements: [classLoader.View_OnClickListener],
                     methods: {
                         onClick(view) {
-                            console.log('[*] Tab clicked: ' + name + ' (index: ' + index + ')');
-                            currentTab = index;
+                            console.log('[*] Tab clicked: ' + data.name + ' (index: ' + data.index + ')');
+                            currentTab = data.index;
                             // Update all tabs
                             for (let i = 0; i < tabButtons.length; i++) {
                                 try {
@@ -215,22 +229,13 @@ Java.perform(function() {
                                     console.log('[!] Tab update error for index ' + i + ': ' + e);
                                 }
                             }
-                            console.log('[+] Switched to tab: ' + name);
+                            console.log('[+] Switched to tab: ' + data.name);
                             return true;
                         }
                     }
                 });
-                tab.setOnClickListener(TabClickListener.$new());
-                
-                tabButtons.push(tab);
-                tabBar.addView(tab);
+                data.tab.setOnClickListener(TabClickListener.$new());
             }
-            
-            // Create 4 tabs
-            createTab(0, 'Main');
-            createTab(1, 'Player');
-            createTab(2, 'World');
-            createTab(3, 'Misc');
             
             // Set first tab as active (delayed to ensure UI is ready)
             Java.scheduleOnMainThread(function() {
