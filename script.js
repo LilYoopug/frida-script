@@ -461,6 +461,8 @@ Java.perform(function() {
                 
                 for (let i = 0; i < options.length; i++) {
                     const radio = RadioButton.$new(activity);
+                    const radioParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                    radio.setLayoutParams(radioParams);
                     radio.setText(classLoader.String.$new('  ' + options[i]));
                     radio.setTextSize(10);
                     radio.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
