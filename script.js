@@ -60,8 +60,8 @@ Java.perform(function() {
             const menuStart = classLoader.TextView.$new(activity);
             const startParams = classLoader.LinearLayout_LayoutParams.$new(WRAP_CONTENT, WRAP_CONTENT);
             menuStart.setLayoutParams(startParams);
-            menuStart.setText(classLoader.String.$new('█\n>_'));
-            menuStart.setTextSize(pixelDensityToPixels(activity, 12));
+            menuStart.setText(classLoader.String.$new('>_'));
+            menuStart.setTextSize(pixelDensityToPixels(activity, 14));
             menuStart.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             menuStart.setTypeface(classLoader.Typeface.MONOSPACE.value);
             menuStart.setGravity(classLoader.Gravity.CENTER.value);
