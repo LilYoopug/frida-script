@@ -193,30 +193,30 @@ Java.perform(function() {
                     implements: [classLoader.View_OnClickListener],
                     methods: {
                         onClick(view) {
-                            Java.scheduleOnMainThread(function() {
+                            console.log('[*] Tab clicked: ' + name + ' (index: ' + index + ')');
+                            currentTab = index;
+                            // Update all tabs
+                            for (let i = 0; i < tabButtons.length; i++) {
                                 try {
-                                    currentTab = index;
-                                    // Update all tabs
-                                    for (let i = 0; i < tabButtons.length; i++) {
-                                        const btn = tabButtons[i];
-                                        const bg = btn.getBackground();
-                                        if (i === currentTab) {
-                                            bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
-                                            bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-                                            btn.setTextColor(classLoader.Color.parseColor('#000000'));
-                                            tabContents[i].setVisibility(classLoader.View.VISIBLE.value);
-                                        } else {
-                                            bg.setColor(classLoader.Color.parseColor('#001100'));
-                                            bg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
-                                            btn.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
-                                            tabContents[i].setVisibility(classLoader.View.GONE.value);
-                                        }
+                                    const btn = tabButtons[i];
+                                    const bg = btn.getBackground();
+                                    if (i === currentTab) {
+                                        bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                                        bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
+                                        btn.setTextColor(classLoader.Color.parseColor('#000000'));
+                                        tabContents[i].setVisibility(classLoader.View.VISIBLE.value);
+                                    } else {
+                                        bg.setColor(classLoader.Color.parseColor('#001100'));
+                                        bg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                                        btn.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+                                        tabContents[i].setVisibility(classLoader.View.GONE.value);
                                     }
-                                    console.log('[*] Switched to tab: ' + name);
                                 } catch(e) {
-                                    console.log('[!] Tab click error: ' + e);
+                                    console.log('[!] Tab update error for index ' + i + ': ' + e);
                                 }
-                            });
+                            }
+                            console.log('[+] Switched to tab: ' + name);
+                            return true;
                         }
                     }
                 });
