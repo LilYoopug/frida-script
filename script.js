@@ -116,11 +116,7 @@ Java.perform(function() {
             const titleBarBg = classLoader.GradientDrawable.$new();
             titleBarBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             titleBarBg.setColor(classLoader.Color.parseColor(OBSIDIAN_BG_LIGHT));
-            titleBarBg.setCornerRadii(Java.array('float', [
-                pixelDensityToPixels(activity, 12), pixelDensityToPixels(activity, 12),
-                pixelDensityToPixels(activity, 12), pixelDensityToPixels(activity, 12),
-                0, 0, 0, 0
-            ]));
+            titleBarBg.setCornerRadius(pixelDensityToPixels(activity, 12));
             titleBar.setBackground(titleBarBg);
             
             // Menu bar title
@@ -365,11 +361,7 @@ Java.perform(function() {
             const footerBg = classLoader.GradientDrawable.$new();
             footerBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             footerBg.setColor(classLoader.Color.parseColor(OBSIDIAN_BG_LIGHT));
-            footerBg.setCornerRadii(Java.array('float', [
-                0, 0, 0, 0,
-                pixelDensityToPixels(activity, 12), pixelDensityToPixels(activity, 12),
-                pixelDensityToPixels(activity, 12), pixelDensityToPixels(activity, 12)
-            ]));
+            footerBg.setCornerRadius(pixelDensityToPixels(activity, 12));
             footer.setBackground(footerBg);
             
             menuScrollLayout.addView(footer);
