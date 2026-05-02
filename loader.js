@@ -4,16 +4,33 @@
 // Version: 1.0.0
 
 (function() {
-    console.log('[*] Remote Script Loader v1.0.0');
-    console.log('[*] Initializing...');
-    
     // Configuration
     const REMOTE_SCRIPT_URL = 'https://raw.githubusercontent.com/LilYoopug/frida-script/main/script.js';
     const TIMEOUT_MS = 10000; // 10 seconds timeout
     
+    // Toast helper function
+    function showToast(message) {
+        Java.scheduleOnMainThread(function() {
+            try {
+                const Toast = Java.use('android.widget.Toast');
+                const UnityPlayer = Java.use('com.unity3d.player.UnityPlayer');
+                const activity = UnityPlayer.currentActivity.value;
+                
+                if (activity) {
+                    Toast.makeText(activity, Java.use('java.lang.String').$new(message), Toast.LENGTH_SHORT.value).show();
+                }
+            } catch(e) {
+                console.log(message); // Fallback to console
+            }
+        });
+    }
+    
+    showToast('[*] Remote Script Loader v1.0.0');
+    showToast('[*] Initializing...');
+    
     // Function to fetch remote script
     function fetchRemoteScript(url, callback) {
-        console.log('[*] Fetching script from: ' + url);
+        showToast('[*] Fetching script from GitHub...');
         
         Java.perform(function() {
             try {
@@ -46,14 +63,12 @@
                 reader.close();
                 const code = sb.toString();
                 
-                console.log('[+] Script fetched successfully');
-                console.log('[+] Script size: ' + code.length + ' bytes');
+                showToast('[+] Script fetched: ' + (code.length / 1024).toFixed(1) + ' KB');
                 
                 callback(null, code);
                 
             } catch(e) {
-                console.log('[-] Error fetching script: ' + e);
-                console.log('[-] Stack: ' + e.stack);
+                showToast('[-] Error fetching script: ' + e);
                 callback(e, null);
             }
         });
@@ -62,27 +77,26 @@
     // Function to execute fetched code
     function executeScript(code) {
         try {
-            console.log('[*] Executing remote script...');
+            showToast('[*] Executing remote script...');
             eval(code);
-            console.log('[+] Remote script executed successfully!');
+            showToast('[+] Script loaded successfully!');
         } catch(e) {
-            console.log('[-] Error executing script: ' + e);
-            console.log('[-] Stack: ' + e.stack);
+            showToast('[-] Error executing script: ' + e);
         }
     }
     
     // Main execution
-    console.log('[*] Starting remote script loader...');
+    showToast('[*] Starting remote loader...');
     
     fetchRemoteScript(REMOTE_SCRIPT_URL, function(error, code) {
         if (error) {
-            console.log('[-] Failed to load remote script');
-            console.log('[-] Please check your internet connection');
+            showToast('[-] Failed to load remote script');
+            showToast('[-] Check internet connection');
             return;
         }
         
         if (!code || code.length === 0) {
-            console.log('[-] Remote script is empty');
+            showToast('[-] Remote script is empty');
             return;
         }
         
