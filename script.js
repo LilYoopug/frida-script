@@ -16,7 +16,7 @@ Java.perform(function() {
                 return;
             }
             
-            // Terminal colors with Obsidian accent
+            // Terminal colors with Obsidian purple accent
             const TERMINAL_BG = '#0D0208';
             const TERMINAL_GREEN = '#7C3AED';       // Obsidian purple accent
             const TERMINAL_DIM = '#5B21B6';         // Dimmed purple
@@ -60,8 +60,8 @@ Java.perform(function() {
             const menuStart = classLoader.TextView.$new(activity);
             const startParams = classLoader.LinearLayout_LayoutParams.$new(WRAP_CONTENT, WRAP_CONTENT);
             menuStart.setLayoutParams(startParams);
-            menuStart.setText(classLoader.String.$new('>_'));
-            menuStart.setTextSize(pixelDensityToPixels(activity, 14));
+            menuStart.setText(classLoader.String.$new('█\n>_'));
+            menuStart.setTextSize(pixelDensityToPixels(activity, 12));
             menuStart.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             menuStart.setTypeface(classLoader.Typeface.MONOSPACE.value);
             menuStart.setGravity(classLoader.Gravity.CENTER.value);
@@ -76,7 +76,7 @@ Java.perform(function() {
             startBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             startBg.setColor(classLoader.Color.parseColor(TERMINAL_BG));
             startBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            startBg.setCornerRadius(0);
+            startBg.setCornerRadius(pixelDensityToPixels(activity, 4));
             menuStart.setBackground(startBg);
             
             // Create menu layout (expanded state)
@@ -90,11 +90,11 @@ Java.perform(function() {
             menuBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             menuBg.setColor(classLoader.Color.parseColor(TERMINAL_BG));
             menuBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            menuBg.setCornerRadius(0);
+            menuBg.setCornerRadius(pixelDensityToPixels(activity, 4));
             menuLayout.setBackground(menuBg);
             menuLayout.setAlpha(0.95);
             
-            // Create menu bar (header) - draggable
+            // Create menu bar (header)
             const menuBarLayout = classLoader.LinearLayout.$new(activity);
             const barParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
             menuBarLayout.setLayoutParams(barParams);
@@ -241,7 +241,7 @@ Java.perform(function() {
             addOption('fly', 'FLY_MODE', 'Gravity override');
             addOption('esp', 'ESP_HACK', 'Entity position display');
             
-            // Footer (draggable area)
+            // Footer
             const footer = classLoader.TextView.$new(activity);
             const footerParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
             footerParams.setMargins(0, pixelDensityToPixels(activity, 8), 0, 0);
@@ -250,12 +250,6 @@ Java.perform(function() {
             footer.setTextSize(9);
             footer.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             footer.setTypeface(classLoader.Typeface.MONOSPACE.value);
-            footer.setPadding(
-                pixelDensityToPixels(activity, 8),
-                pixelDensityToPixels(activity, 8),
-                pixelDensityToPixels(activity, 8),
-                pixelDensityToPixels(activity, 8)
-            );
             menuScrollLayout.addView(footer);
             
             // Assemble menu
@@ -274,31 +268,36 @@ Java.perform(function() {
             let isMenuLayout = false;
             let initialTouchTime = 0;
             
-            // Touch listener for minimized button (tap to expand + drag)
-            const MenuStartOnTouchListener = Java.registerClass({
-                name: 'com.terminal.start' + Math.random().toString(36).substr(2, 9),
+            const MainLayoutOnTouchListener = Java.registerClass({
+                name: 'com.terminal.drag' + Math.random().toString(36).substr(2, 9),
                 implements: [classLoader.View_OnTouchListener],
                 methods: {
                     onTouch(view, event) {
                         switch (event.getAction()) {
                             case classLoader.MotionEvent.ACTION_DOWN.value:
-                                initialX = mainLayout.getX() - event.getRawX();
-                                initialY = mainLayout.getY() - event.getRawY();
+                                initialX = view.getX() - event.getRawX();
+                                initialY = view.getY() - event.getRawY();
                                 isMove = false;
                                 initialTouchTime = Date.now();
                                 break;
                             case classLoader.MotionEvent.ACTION_UP.value:
                                 if (!isMove) {
-                                    mainLayout.removeView(menuStart);
-                                    mainLayout.addView(menuLayout);
-                                    isMenuLayout = true;
+                                    if (!isMenuLayout) {
+                                        mainLayout.removeView(menuStart);
+                                        mainLayout.addView(menuLayout);
+                                        isMenuLayout = true;
+                                    } else {
+                                        mainLayout.removeView(menuLayout);
+                                        mainLayout.addView(menuStart);
+                                        isMenuLayout = false;
+                                    }
                                 }
                                 break;
                             case classLoader.MotionEvent.ACTION_MOVE.value:
-                                mainLayout.setX(event.getRawX() + initialX);
-                                mainLayout.setY(event.getRawY() + initialY);
+                                view.setX(event.getRawX() + initialX);
+                                view.setY(event.getRawY() + initialY);
                                 let deltaTime = Date.now() - initialTouchTime;
-                                if (deltaTime > 100) isMove = true;
+                                if (deltaTime > 200) isMove = true;
                                 break;
                             default:
                                 return false;
@@ -307,77 +306,7 @@ Java.perform(function() {
                     }
                 }
             });
-            menuStart.setOnTouchListener(MenuStartOnTouchListener.$new());
-            
-            // Touch listener for menu bar (drag entire menu)
-            const MenuBarOnTouchListener = Java.registerClass({
-                name: 'com.terminal.bar' + Math.random().toString(36).substr(2, 9),
-                implements: [classLoader.View_OnTouchListener],
-                methods: {
-                    onTouch(view, event) {
-                        switch (event.getAction()) {
-                            case classLoader.MotionEvent.ACTION_DOWN.value:
-                                initialX = mainLayout.getX() - event.getRawX();
-                                initialY = mainLayout.getY() - event.getRawY();
-                                isMove = false;
-                                initialTouchTime = Date.now();
-                                menuScrollView.requestDisallowInterceptTouchEvent(true);
-                                break;
-                            case classLoader.MotionEvent.ACTION_UP.value:
-                                menuScrollView.requestDisallowInterceptTouchEvent(false);
-                                if (!isMove) {
-                                    // Tap to minimize
-                                    mainLayout.removeView(menuLayout);
-                                    mainLayout.addView(menuStart);
-                                    isMenuLayout = false;
-                                }
-                                break;
-                            case classLoader.MotionEvent.ACTION_MOVE.value:
-                                mainLayout.setX(event.getRawX() + initialX);
-                                mainLayout.setY(event.getRawY() + initialY);
-                                let deltaTime = Date.now() - initialTouchTime;
-                                if (deltaTime > 100) isMove = true;
-                                break;
-                            default:
-                                return false;
-                        }
-                        return true;
-                    }
-                }
-            });
-            menuBarLayout.setOnTouchListener(MenuBarOnTouchListener.$new());
-            
-            // Touch listener for footer (drag entire menu)
-            const FooterOnTouchListener = Java.registerClass({
-                name: 'com.terminal.footer' + Math.random().toString(36).substr(2, 9),
-                implements: [classLoader.View_OnTouchListener],
-                methods: {
-                    onTouch(view, event) {
-                        switch (event.getAction()) {
-                            case classLoader.MotionEvent.ACTION_DOWN.value:
-                                initialX = mainLayout.getX() - event.getRawX();
-                                initialY = mainLayout.getY() - event.getRawY();
-                                isMove = false;
-                                initialTouchTime = Date.now();
-                                menuScrollView.requestDisallowInterceptTouchEvent(true);
-                                break;
-                            case classLoader.MotionEvent.ACTION_UP.value:
-                                menuScrollView.requestDisallowInterceptTouchEvent(false);
-                                break;
-                            case classLoader.MotionEvent.ACTION_MOVE.value:
-                                mainLayout.setX(event.getRawX() + initialX);
-                                mainLayout.setY(event.getRawY() + initialY);
-                                let deltaTime = Date.now() - initialTouchTime;
-                                if (deltaTime > 100) isMove = true;
-                                break;
-                            default:
-                                return false;
-                        }
-                        return true;
-                    }
-                }
-            });
-            footer.setOnTouchListener(FooterOnTouchListener.$new());
+            mainLayout.setOnTouchListener(MainLayoutOnTouchListener.$new());
             
             // Add to activity
             activity.addContentView(contentView, contentView.getLayoutParams());
