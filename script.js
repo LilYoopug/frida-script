@@ -133,25 +133,122 @@ Java.perform(function() {
             menuScrollLayout.setLayoutParams(scrollLayoutParams);
             menuScrollLayout.setOrientation(1); // VERTICAL
             
-            // Add boot text
-            const bootText = classLoader.TextView.$new(activity);
-            const bootParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
-            bootParams.setMargins(0, 0, 0, pixelDensityToPixels(activity, 8));
-            bootText.setLayoutParams(bootParams);
-            bootText.setText(classLoader.String.$new(
-                '> SYSTEM INITIALIZED\n' +
-                '> LOADING MOD KERNEL...\n' +
-                '> [OK] FRIDA INJECTED\n' +
-                '> [OK] HOOKS ACTIVE\n' +
-                '> ========================\n'
-            ));
-            bootText.setTextSize(9);
-            bootText.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
-            bootText.setTypeface(classLoader.Typeface.MONOSPACE.value);
-            menuScrollLayout.addView(bootText);
+            // Create tab bar
+            const tabBar = classLoader.LinearLayout.$new(activity);
+            const tabBarParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+            tabBar.setLayoutParams(tabBarParams);
+            tabBar.setOrientation(0); // HORIZONTAL
+            const tabPadding = pixelDensityToPixels(activity, 4);
+            tabBar.setPadding(tabPadding, tabPadding, tabPadding, tabPadding);
             
-            // Function to add options
-            function addOption(id, name, description) {
+            // Tab state
+            let currentTab = 0;
+            const tabButtons = [];
+            const tabContents = [];
+            
+            // Function to create tab button
+            function createTab(index, name) {
+                const tab = classLoader.TextView.$new(activity);
+                const tabParams = classLoader.LinearLayout_LayoutParams.$new(0, WRAP_CONTENT, 1.0);
+                tabParams.setMargins(
+                    pixelDensityToPixels(activity, 2),
+                    0,
+                    pixelDensityToPixels(activity, 2),
+                    0
+                );
+                tab.setLayoutParams(tabParams);
+                tab.setText(classLoader.String.$new('> ' + name.toUpperCase()));
+                tab.setTextSize(10);
+                tab.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+                tab.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                tab.setGravity(classLoader.Gravity.CENTER.value);
+                tab.setPadding(
+                    pixelDensityToPixels(activity, 6),
+                    pixelDensityToPixels(activity, 6),
+                    pixelDensityToPixels(activity, 6),
+                    pixelDensityToPixels(activity, 6)
+                );
+                
+                const tabBg = classLoader.GradientDrawable.$new();
+                tabBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
+                tabBg.setColor(classLoader.Color.parseColor('#001100'));
+                tabBg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                tab.setBackground(tabBg);
+                
+                // Create content container for this tab
+                const tabContent = classLoader.LinearLayout.$new(activity);
+                const contentParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                tabContent.setLayoutParams(contentParams);
+                tabContent.setOrientation(1); // VERTICAL
+                tabContent.setVisibility(index === 0 ? classLoader.View.VISIBLE.value : classLoader.View.GONE.value);
+                
+                tabContents.push(tabContent);
+                
+                // Click listener for tab
+                const TabClickListener = Java.registerClass({
+                    name: 'com.terminal.tab' + Math.random().toString(36).substr(2, 9),
+                    implements: [classLoader.View_OnClickListener],
+                    methods: {
+                        onClick(view) {
+                            currentTab = index;
+                            // Update all tabs
+                            for (let i = 0; i < tabButtons.length; i++) {
+                                const btn = tabButtons[i];
+                                const bg = btn.getBackground();
+                                if (i === currentTab) {
+                                    bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                                    bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
+                                    btn.setTextColor(classLoader.Color.parseColor('#000000'));
+                                    tabContents[i].setVisibility(classLoader.View.VISIBLE.value);
+                                } else {
+                                    bg.setColor(classLoader.Color.parseColor('#001100'));
+                                    bg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                                    btn.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+                                    tabContents[i].setVisibility(classLoader.View.GONE.value);
+                                }
+                            }
+                            console.log('[*] Switched to tab: ' + name);
+                        }
+                    }
+                });
+                tab.setOnClickListener(TabClickListener.$new());
+                
+                tabButtons.push(tab);
+                tabBar.addView(tab);
+            }
+            
+            // Create 4 tabs
+            createTab(0, 'Main');
+            createTab(1, 'Player');
+            createTab(2, 'World');
+            createTab(3, 'Misc');
+            
+            // Set first tab as active
+            const firstTabBg = tabButtons[0].getBackground();
+            firstTabBg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+            firstTabBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
+            tabButtons[0].setTextColor(classLoader.Color.parseColor('#000000'));
+            
+            menuScrollLayout.addView(tabBar);
+            
+            // Add separator
+            const separator = classLoader.TextView.$new(activity);
+            const sepParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+            sepParams.setMargins(0, pixelDensityToPixels(activity, 4), 0, pixelDensityToPixels(activity, 4));
+            separator.setLayoutParams(sepParams);
+            separator.setText(classLoader.String.$new('> ========================'));
+            separator.setTextSize(9);
+            separator.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+            separator.setTypeface(classLoader.Typeface.MONOSPACE.value);
+            menuScrollLayout.addView(separator);
+            
+            // Add all tab content containers
+            for (let i = 0; i < tabContents.length; i++) {
+                menuScrollLayout.addView(tabContents[i]);
+            }
+            
+            // Function to add options to specific tab
+            function addOption(tabIndex, id, name, description) {
                 const optionLayout = classLoader.LinearLayout.$new(activity);
                 const optionParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
                 optionParams.setMargins(0, 0, 0, pixelDensityToPixels(activity, 6));
@@ -230,16 +327,24 @@ Java.perform(function() {
                 });
                 optionLayout.setOnClickListener(ClickListener.$new());
                 
-                menuScrollLayout.addView(optionLayout);
+                tabContents[tabIndex].addView(optionLayout);
             }
             
-            // Add options
-            addOption('speed', 'SPEED_HACK', 'Modify movement velocity');
-            addOption('god', 'GOD_MODE', 'Invulnerability enabled');
-            addOption('items', 'UNLIMITED_ITEMS', 'Infinite inventory');
-            addOption('noclip', 'NO_CLIP', 'Phase through walls');
-            addOption('fly', 'FLY_MODE', 'Gravity override');
-            addOption('esp', 'ESP_HACK', 'Entity position display');
+            // Add options to tabs
+            // Main tab (0)
+            addOption(0, 'speed', 'SPEED_HACK', 'Modify movement velocity');
+            addOption(0, 'god', 'GOD_MODE', 'Invulnerability enabled');
+            
+            // Player tab (1)
+            addOption(1, 'items', 'UNLIMITED_ITEMS', 'Infinite inventory');
+            addOption(1, 'fly', 'FLY_MODE', 'Gravity override');
+            
+            // World tab (2)
+            addOption(2, 'noclip', 'NO_CLIP', 'Phase through walls');
+            addOption(2, 'esp', 'ESP_HACK', 'Entity position display');
+            
+            // Misc tab (3)
+            // Add more options here as needed
             
             // Footer
             const footer = classLoader.TextView.$new(activity);
