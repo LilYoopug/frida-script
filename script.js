@@ -145,6 +145,7 @@ Java.perform(function() {
             // Tab state
             let currentTab = 0;
             const tabButtons = [];
+            const tabBackgrounds = [];
             const tabContents = [];
             
             // Function to create tab button
@@ -186,6 +187,7 @@ Java.perform(function() {
                 tabContent.setVisibility(index === 0 ? classLoader.View.VISIBLE.value : classLoader.View.GONE.value);
                 
                 tabButtons.push(tab);
+                tabBackgrounds.push(tabBg);
                 tabContents.push(tabContent);
                 tabBar.addView(tab);
                 
@@ -213,7 +215,7 @@ Java.perform(function() {
                             for (let i = 0; i < tabButtons.length; i++) {
                                 try {
                                     const btn = tabButtons[i];
-                                    const bg = btn.getBackground();
+                                    const bg = tabBackgrounds[i];
                                     if (i === currentTab) {
                                         bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
                                         bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
