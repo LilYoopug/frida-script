@@ -8,21 +8,27 @@
     const REMOTE_SCRIPT_URL = 'https://cdn.jsdelivr.net/gh/LilYoopug/frida-script@main/script.js';
     const TIMEOUT_MS = 10000; // 10 seconds timeout
     
-    // Toast helper function
+    // Toast helper function - safe version
     function showToast(message) {
-        Java.scheduleOnMainThread(function() {
-            try {
-                const Toast = Java.use('android.widget.Toast');
-                const UnityPlayer = Java.use('com.unity3d.player.UnityPlayer');
-                const activity = UnityPlayer.currentActivity.value;
-                
-                if (activity) {
-                    Toast.makeText(activity, Java.use('java.lang.String').$new(message), Toast.LENGTH_LONG.value).show();
-                }
-            } catch(e) {
-                console.log(message); // Fallback to console
-            }
-        });
+        try {
+            Java.perform(function() {
+                Java.scheduleOnMainThread(function() {
+                    try {
+                        const Toast = Java.use('android.widget.Toast');
+                        const UnityPlayer = Java.use('com.unity3d.player.UnityPlayer');
+                        const activity = UnityPlayer.currentActivity.value;
+                        
+                        if (activity) {
+                            Toast.makeText(activity, Java.use('java.lang.String').$new(message), Toast.LENGTH_SHORT.value).show();
+                        }
+                    } catch(e) {
+                        // Silent fail, use console instead
+                    }
+                });
+            });
+        } catch(e) {
+            // Silent fail
+        }
     }
     
     // Error handler with detailed logging
