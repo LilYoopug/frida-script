@@ -61,7 +61,7 @@ Java.perform(function() {
             const menuStart = classLoader.TextView.$new(activity);
             const startParams = classLoader.LinearLayout_LayoutParams.$new(WRAP_CONTENT, WRAP_CONTENT);
             menuStart.setLayoutParams(startParams);
-            menuStart.setText(classLoader.String.$new('█\n>_'));
+            menuStart.setText(classLoader.String.$new('>_'));
             menuStart.setTextSize(pixelDensityToPixels(activity, 12));
             menuStart.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             menuStart.setTypeface(classLoader.Typeface.MONOSPACE.value);
@@ -351,21 +351,195 @@ Java.perform(function() {
                 tabContents[tabIndex].addView(optionLayout);
             }
             
+            // Function to add slider option
+            function addSlider(tabIndex, id, name, min, max, defaultValue) {
+                const SeekBar = Java.use('android.widget.SeekBar');
+                const SeekBar_OnSeekBarChangeListener = Java.use('android.widget.SeekBar$OnSeekBarChangeListener');
+                
+                const optionLayout = classLoader.LinearLayout.$new(activity);
+                const optionParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                optionParams.setMargins(0, 0, 0, pixelDensityToPixels(activity, 6));
+                optionLayout.setLayoutParams(optionParams);
+                optionLayout.setOrientation(1); // VERTICAL
+                const optPadding = pixelDensityToPixels(activity, 8);
+                optionLayout.setPadding(optPadding, optPadding, optPadding, optPadding);
+                
+                const optionBg = classLoader.GradientDrawable.$new();
+                optionBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
+                optionBg.setColor(classLoader.Color.parseColor('#001100'));
+                optionBg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                optionLayout.setBackground(optionBg);
+                
+                // Header
+                const header = classLoader.LinearLayout.$new(activity);
+                const headerParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                header.setLayoutParams(headerParams);
+                header.setOrientation(0); // HORIZONTAL
+                
+                const label = classLoader.TextView.$new(activity);
+                const labelParams = classLoader.LinearLayout_LayoutParams.$new(0, WRAP_CONTENT, 1.0);
+                label.setLayoutParams(labelParams);
+                label.setText(classLoader.String.$new('> ' + name));
+                label.setTextSize(11);
+                label.setTextColor(classLoader.Color.parseColor('#FFFFFF'));
+                label.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                
+                const valueText = classLoader.TextView.$new(activity);
+                const valueParams = classLoader.LinearLayout_LayoutParams.$new(WRAP_CONTENT, WRAP_CONTENT);
+                valueText.setLayoutParams(valueParams);
+                valueText.setText(classLoader.String.$new('[' + defaultValue + ']'));
+                valueText.setTextSize(10);
+                valueText.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                valueText.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                
+                header.addView(label);
+                header.addView(valueText);
+                optionLayout.addView(header);
+                
+                // Slider
+                const slider = SeekBar.$new(activity);
+                const sliderParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                sliderParams.setMargins(0, pixelDensityToPixels(activity, 4), 0, 0);
+                slider.setLayoutParams(sliderParams);
+                slider.setMax(max - min);
+                slider.setProgress(defaultValue - min);
+                
+                const SeekBarListener = Java.registerClass({
+                    name: 'com.terminal.slider' + Math.random().toString(36).substr(2, 9),
+                    implements: [SeekBar_OnSeekBarChangeListener],
+                    methods: {
+                        onProgressChanged(seekBar, progress, fromUser) {
+                            const value = progress + min;
+                            valueText.setText(classLoader.String.$new('[' + value + ']'));
+                            console.log('[*] ' + id + ' = ' + value);
+                        },
+                        onStartTrackingTouch(seekBar) {},
+                        onStopTrackingTouch(seekBar) {}
+                    }
+                });
+                slider.setOnSeekBarChangeListener(SeekBarListener.$new());
+                
+                optionLayout.addView(slider);
+                tabContents[tabIndex].addView(optionLayout);
+            }
+            
+            // Function to add radio buttons
+            function addRadio(tabIndex, id, name, options) {
+                const RadioGroup = Java.use('android.widget.RadioGroup');
+                const RadioButton = Java.use('android.widget.RadioButton');
+                
+                const optionLayout = classLoader.LinearLayout.$new(activity);
+                const optionParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                optionParams.setMargins(0, 0, 0, pixelDensityToPixels(activity, 6));
+                optionLayout.setLayoutParams(optionParams);
+                optionLayout.setOrientation(1); // VERTICAL
+                const optPadding = pixelDensityToPixels(activity, 8);
+                optionLayout.setPadding(optPadding, optPadding, optPadding, optPadding);
+                
+                const optionBg = classLoader.GradientDrawable.$new();
+                optionBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
+                optionBg.setColor(classLoader.Color.parseColor('#001100'));
+                optionBg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                optionLayout.setBackground(optionBg);
+                
+                // Label
+                const label = classLoader.TextView.$new(activity);
+                const labelParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                label.setLayoutParams(labelParams);
+                label.setText(classLoader.String.$new('> ' + name));
+                label.setTextSize(11);
+                label.setTextColor(classLoader.Color.parseColor('#FFFFFF'));
+                label.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                optionLayout.addView(label);
+                
+                // Radio group
+                const radioGroup = RadioGroup.$new(activity);
+                const radioParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                radioParams.setMargins(pixelDensityToPixels(activity, 4), pixelDensityToPixels(activity, 4), 0, 0);
+                radioGroup.setLayoutParams(radioParams);
+                radioGroup.setOrientation(1); // VERTICAL
+                
+                for (let i = 0; i < options.length; i++) {
+                    const radio = RadioButton.$new(activity);
+                    radio.setText(classLoader.String.$new('  ' + options[i]));
+                    radio.setTextSize(10);
+                    radio.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+                    radio.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                    if (i === 0) radio.setChecked(true);
+                    radioGroup.addView(radio);
+                }
+                
+                optionLayout.addView(radioGroup);
+                tabContents[tabIndex].addView(optionLayout);
+            }
+            
+            // Function to add select/spinner
+            function addSelect(tabIndex, id, name, options) {
+                const Spinner = Java.use('android.widget.Spinner');
+                const ArrayAdapter = Java.use('android.widget.ArrayAdapter');
+                
+                const optionLayout = classLoader.LinearLayout.$new(activity);
+                const optionParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                optionParams.setMargins(0, 0, 0, pixelDensityToPixels(activity, 6));
+                optionLayout.setLayoutParams(optionParams);
+                optionLayout.setOrientation(1); // VERTICAL
+                const optPadding = pixelDensityToPixels(activity, 8);
+                optionLayout.setPadding(optPadding, optPadding, optPadding, optPadding);
+                
+                const optionBg = classLoader.GradientDrawable.$new();
+                optionBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
+                optionBg.setColor(classLoader.Color.parseColor('#001100'));
+                optionBg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                optionLayout.setBackground(optionBg);
+                
+                // Label
+                const label = classLoader.TextView.$new(activity);
+                const labelParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                label.setLayoutParams(labelParams);
+                label.setText(classLoader.String.$new('> ' + name));
+                label.setTextSize(11);
+                label.setTextColor(classLoader.Color.parseColor('#FFFFFF'));
+                label.setTypeface(classLoader.Typeface.MONOSPACE.value);
+                optionLayout.addView(label);
+                
+                // Spinner
+                const spinner = Spinner.$new(activity);
+                const spinnerParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
+                spinnerParams.setMargins(0, pixelDensityToPixels(activity, 4), 0, 0);
+                spinner.setLayoutParams(spinnerParams);
+                
+                const adapter = ArrayAdapter.createFromResource(
+                    activity,
+                    Java.use('android.R$layout').simple_spinner_item.value,
+                    options
+                );
+                adapter.setDropDownViewResource(Java.use('android.R$layout').simple_spinner_dropdown_item.value);
+                spinner.setAdapter(adapter);
+                
+                optionLayout.addView(spinner);
+                tabContents[tabIndex].addView(optionLayout);
+            }
+            
             // Add options to tabs
             // Main tab (0)
             addOption(0, 'speed', 'SPEED_HACK', 'Modify movement velocity');
+            addSlider(0, 'speed_multiplier', 'SPEED_MULTIPLIER', 1, 10, 5);
             addOption(0, 'god', 'GOD_MODE', 'Invulnerability enabled');
             
             // Player tab (1)
             addOption(1, 'items', 'UNLIMITED_ITEMS', 'Infinite inventory');
+            addSlider(1, 'health', 'HEALTH', 0, 100, 100);
+            addRadio(1, 'character', 'CHARACTER_SELECT', ['Warrior', 'Mage', 'Archer', 'Rogue']);
             addOption(1, 'fly', 'FLY_MODE', 'Gravity override');
             
             // World tab (2)
             addOption(2, 'noclip', 'NO_CLIP', 'Phase through walls');
+            addSelect(2, 'time', 'TIME_OF_DAY', ['Morning', 'Noon', 'Evening', 'Night']);
             addOption(2, 'esp', 'ESP_HACK', 'Entity position display');
             
             // Misc tab (3)
-            // Add more options here as needed
+            addSlider(3, 'fov', 'FIELD_OF_VIEW', 60, 120, 90);
+            addRadio(3, 'quality', 'GRAPHICS_QUALITY', ['Low', 'Medium', 'High', 'Ultra']);
             
             // Footer
             const footer = classLoader.TextView.$new(activity);
