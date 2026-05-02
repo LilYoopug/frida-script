@@ -5,7 +5,7 @@
 
 (function() {
     // Configuration
-    const REMOTE_SCRIPT_URL = 'https://raw.githubusercontent.com/LilYoopug/frida-script/main/script.js';
+    const REMOTE_SCRIPT_URL = 'https://cdn.jsdelivr.net/gh/LilYoopug/frida-script@main/script.js';
     const TIMEOUT_MS = 10000; // 10 seconds timeout
     
     // Toast helper function
