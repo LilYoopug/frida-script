@@ -31,6 +31,7 @@ Java.perform(function() {
                 ViewGroup_LayoutParams: Java.use('android.view.ViewGroup$LayoutParams'),
                 LinearLayout_LayoutParams: Java.use('android.widget.LinearLayout$LayoutParams'),
                 Color: Java.use('android.graphics.Color'),
+                View: Java.use('android.view.View'),
                 View_OnTouchListener: Java.use('android.view.View$OnTouchListener'),
                 MotionEvent: Java.use('android.view.MotionEvent'),
                 String: Java.use('java.lang.String'),
