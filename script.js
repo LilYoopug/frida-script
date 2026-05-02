@@ -232,7 +232,6 @@ Java.perform(function() {
                                 }
                             }
                             console.log('[+] Switched to tab: ' + data.name);
-                            return true;
                         }
                     }
                 });
