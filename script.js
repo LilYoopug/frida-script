@@ -76,7 +76,7 @@ Java.perform(function() {
             startBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             startBg.setColor(classLoader.Color.parseColor(TERMINAL_BG));
             startBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            startBg.setCornerRadius(pixelDensityToPixels(activity, 4));
+            startBg.setCornerRadius(0);
             menuStart.setBackground(startBg);
             
             // Create menu layout (expanded state)
@@ -90,7 +90,7 @@ Java.perform(function() {
             menuBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             menuBg.setColor(classLoader.Color.parseColor(TERMINAL_BG));
             menuBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            menuBg.setCornerRadius(pixelDensityToPixels(activity, 4));
+            menuBg.setCornerRadius(0);
             menuLayout.setBackground(menuBg);
             menuLayout.setAlpha(0.95);
             
