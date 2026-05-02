@@ -274,7 +274,7 @@ Java.perform(function() {
                 optionName.setLayoutParams(nameParams);
                 optionName.setText(classLoader.String.$new('> ' + name));
                 optionName.setTextSize(11);
-                optionName.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                optionName.setTextColor(classLoader.Color.parseColor('#FFFFFF'));
                 optionName.setTypeface(classLoader.Typeface.MONOSPACE.value);
                 
                 const statusText = classLoader.TextView.$new(activity);
