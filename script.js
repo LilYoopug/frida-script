@@ -175,6 +175,8 @@ Java.perform(function() {
                 tabBg.setColor(classLoader.Color.parseColor('#001100'));
                 tabBg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
                 tab.setBackground(tabBg);
+                tab.setClickable(true);
+                tab.setFocusable(true);
                 
                 // Create content container for this tab
                 const tabContent = classLoader.LinearLayout.$new(activity);
