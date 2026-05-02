@@ -16,11 +16,11 @@ Java.perform(function() {
                 return;
             }
             
-            // Terminal colors with Obsidian purple accent
+            // Terminal colors with white accent
             const TERMINAL_BG = '#0D0208';
-            const TERMINAL_GREEN = '#7C3AED';       // Obsidian purple accent
-            const TERMINAL_DIM = '#5B21B6';         // Dimmed purple
-            const TERMINAL_HIGHLIGHT = '#A78BFA';   // Light purple
+            const TERMINAL_GREEN = '#FFFFFF';       // White accent
+            const TERMINAL_DIM = '#808080';         // Gray
+            const TERMINAL_HIGHLIGHT = '#FFFFFF';   // White highlight
             const TERMINAL_RED = '#FF0000';
             
             // Load classes
@@ -191,24 +191,30 @@ Java.perform(function() {
                     implements: [classLoader.View_OnClickListener],
                     methods: {
                         onClick(view) {
-                            currentTab = index;
-                            // Update all tabs
-                            for (let i = 0; i < tabButtons.length; i++) {
-                                const btn = tabButtons[i];
-                                const bg = btn.getBackground();
-                                if (i === currentTab) {
-                                    bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
-                                    bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-                                    btn.setTextColor(classLoader.Color.parseColor('#000000'));
-                                    tabContents[i].setVisibility(classLoader.View.VISIBLE.value);
-                                } else {
-                                    bg.setColor(classLoader.Color.parseColor('#001100'));
-                                    bg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
-                                    btn.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
-                                    tabContents[i].setVisibility(classLoader.View.GONE.value);
+                            Java.scheduleOnMainThread(function() {
+                                try {
+                                    currentTab = index;
+                                    // Update all tabs
+                                    for (let i = 0; i < tabButtons.length; i++) {
+                                        const btn = tabButtons[i];
+                                        const bg = btn.getBackground();
+                                        if (i === currentTab) {
+                                            bg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                                            bg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
+                                            btn.setTextColor(classLoader.Color.parseColor('#000000'));
+                                            tabContents[i].setVisibility(classLoader.View.VISIBLE.value);
+                                        } else {
+                                            bg.setColor(classLoader.Color.parseColor('#001100'));
+                                            bg.setStroke(pixelDensityToPixels(activity, 1), classLoader.Color.parseColor(TERMINAL_DIM));
+                                            btn.setTextColor(classLoader.Color.parseColor(TERMINAL_DIM));
+                                            tabContents[i].setVisibility(classLoader.View.GONE.value);
+                                        }
+                                    }
+                                    console.log('[*] Switched to tab: ' + name);
+                                } catch(e) {
+                                    console.log('[!] Tab click error: ' + e);
                                 }
-                            }
-                            console.log('[*] Switched to tab: ' + name);
+                            });
                         }
                     }
                 });
