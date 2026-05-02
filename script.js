@@ -241,7 +241,7 @@ Java.perform(function() {
             addOption('fly', 'FLY_MODE', 'Gravity override');
             addOption('esp', 'ESP_HACK', 'Entity position display');
             
-            // Footer
+            // Footer (draggable area)
             const footer = classLoader.TextView.$new(activity);
             const footerParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
             footerParams.setMargins(0, pixelDensityToPixels(activity, 8), 0, 0);
@@ -250,6 +250,12 @@ Java.perform(function() {
             footer.setTextSize(9);
             footer.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             footer.setTypeface(classLoader.Typeface.MONOSPACE.value);
+            footer.setPadding(
+                pixelDensityToPixels(activity, 8),
+                pixelDensityToPixels(activity, 8),
+                pixelDensityToPixels(activity, 8),
+                pixelDensityToPixels(activity, 8)
+            );
             menuScrollLayout.addView(footer);
             
             // Assemble menu
@@ -315,8 +321,10 @@ Java.perform(function() {
                                 initialY = mainLayout.getY() - event.getRawY();
                                 isMove = false;
                                 initialTouchTime = Date.now();
+                                menuScrollView.requestDisallowInterceptTouchEvent(true);
                                 break;
                             case classLoader.MotionEvent.ACTION_UP.value:
+                                menuScrollView.requestDisallowInterceptTouchEvent(false);
                                 if (!isMove) {
                                     // Tap to minimize
                                     mainLayout.removeView(menuLayout);
@@ -338,6 +346,38 @@ Java.perform(function() {
                 }
             });
             menuBarLayout.setOnTouchListener(MenuBarOnTouchListener.$new());
+            
+            // Touch listener for footer (drag entire menu)
+            const FooterOnTouchListener = Java.registerClass({
+                name: 'com.terminal.footer' + Math.random().toString(36).substr(2, 9),
+                implements: [classLoader.View_OnTouchListener],
+                methods: {
+                    onTouch(view, event) {
+                        switch (event.getAction()) {
+                            case classLoader.MotionEvent.ACTION_DOWN.value:
+                                initialX = mainLayout.getX() - event.getRawX();
+                                initialY = mainLayout.getY() - event.getRawY();
+                                isMove = false;
+                                initialTouchTime = Date.now();
+                                menuScrollView.requestDisallowInterceptTouchEvent(true);
+                                break;
+                            case classLoader.MotionEvent.ACTION_UP.value:
+                                menuScrollView.requestDisallowInterceptTouchEvent(false);
+                                break;
+                            case classLoader.MotionEvent.ACTION_MOVE.value:
+                                mainLayout.setX(event.getRawX() + initialX);
+                                mainLayout.setY(event.getRawY() + initialY);
+                                let deltaTime = Date.now() - initialTouchTime;
+                                if (deltaTime > 100) isMove = true;
+                                break;
+                            default:
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+            });
+            footer.setOnTouchListener(FooterOnTouchListener.$new());
             
             // Add to activity
             activity.addContentView(contentView, contentView.getLayoutParams());
