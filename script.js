@@ -90,8 +90,8 @@ Java.perform(function() {
             const menuBg = classLoader.GradientDrawable.$new();
             menuBg.setShape(classLoader.GradientDrawable.RECTANGLE.value);
             menuBg.setColor(classLoader.Color.parseColor(TERMINAL_BG));
-            menuBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            menuBg.setCornerRadius(pixelDensityToPixels(activity, 4));
+            menuBg.setStroke(pixelDensityToPixels(activity, 4), classLoader.Color.parseColor(TERMINAL_GREEN));
+            menuBg.setCornerRadius(0);
             menuLayout.setBackground(menuBg);
             menuLayout.setAlpha(0.95);
             
@@ -546,10 +546,17 @@ Java.perform(function() {
             const footerParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
             footerParams.setMargins(0, pixelDensityToPixels(activity, 8), 0, 0);
             footer.setLayoutParams(footerParams);
-            footer.setText(classLoader.String.$new('> root@terminal:~$ █'));
+            footer.setText(classLoader.String.$new('═══ DRAG HERE TO MOVE ═══'));
             footer.setTextSize(9);
             footer.setTextColor(classLoader.Color.parseColor(TERMINAL_GREEN));
             footer.setTypeface(classLoader.Typeface.MONOSPACE.value);
+            footer.setGravity(classLoader.Gravity.CENTER.value);
+            footer.setPadding(
+                pixelDensityToPixels(activity, 8),
+                pixelDensityToPixels(activity, 16),
+                pixelDensityToPixels(activity, 8),
+                pixelDensityToPixels(activity, 16)
+            );
             menuScrollLayout.addView(footer);
             
             // Assemble menu
