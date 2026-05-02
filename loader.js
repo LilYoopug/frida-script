@@ -61,13 +61,6 @@
                 console.log('[*] Connecting...');
                 connection.connect();
                 
-                const responseCode = connection.getResponseCode();
-                console.log('[*] Response code: ' + responseCode);
-                
-                if (responseCode !== 200) {
-                    throw new Error('HTTP ' + responseCode + ' - Server returned error');
-                }
-                
                 // Read response
                 console.log('[*] Reading response...');
                 const reader = BufferedReader.$new(
