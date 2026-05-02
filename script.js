@@ -224,11 +224,17 @@ Java.perform(function() {
             createTab(2, 'World');
             createTab(3, 'Misc');
             
-            // Set first tab as active
-            const firstTabBg = tabButtons[0].getBackground();
-            firstTabBg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
-            firstTabBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
-            tabButtons[0].setTextColor(classLoader.Color.parseColor('#000000'));
+            // Set first tab as active (delayed to ensure UI is ready)
+            Java.scheduleOnMainThread(function() {
+                try {
+                    const firstTabBg = tabButtons[0].getBackground();
+                    firstTabBg.setColor(classLoader.Color.parseColor(TERMINAL_GREEN));
+                    firstTabBg.setStroke(pixelDensityToPixels(activity, 2), classLoader.Color.parseColor(TERMINAL_GREEN));
+                    tabButtons[0].setTextColor(classLoader.Color.parseColor('#000000'));
+                } catch(e) {
+                    console.log('[!] Could not set initial tab: ' + e);
+                }
+            });
             
             menuScrollLayout.addView(tabBar);
             
