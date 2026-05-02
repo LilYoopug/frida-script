@@ -94,7 +94,7 @@ Java.perform(function() {
             menuLayout.setBackground(menuBg);
             menuLayout.setAlpha(0.95);
             
-            // Create menu bar (header)
+            // Create menu bar (header) - draggable
             const menuBarLayout = classLoader.LinearLayout.$new(activity);
             const barParams = classLoader.LinearLayout_LayoutParams.$new(MATCH_PARENT, WRAP_CONTENT);
             menuBarLayout.setLayoutParams(barParams);
@@ -268,36 +268,31 @@ Java.perform(function() {
             let isMenuLayout = false;
             let initialTouchTime = 0;
             
-            const MainLayoutOnTouchListener = Java.registerClass({
-                name: 'com.terminal.drag' + Math.random().toString(36).substr(2, 9),
+            // Touch listener for minimized button (tap to expand + drag)
+            const MenuStartOnTouchListener = Java.registerClass({
+                name: 'com.terminal.start' + Math.random().toString(36).substr(2, 9),
                 implements: [classLoader.View_OnTouchListener],
                 methods: {
                     onTouch(view, event) {
                         switch (event.getAction()) {
                             case classLoader.MotionEvent.ACTION_DOWN.value:
-                                initialX = view.getX() - event.getRawX();
-                                initialY = view.getY() - event.getRawY();
+                                initialX = mainLayout.getX() - event.getRawX();
+                                initialY = mainLayout.getY() - event.getRawY();
                                 isMove = false;
                                 initialTouchTime = Date.now();
                                 break;
                             case classLoader.MotionEvent.ACTION_UP.value:
                                 if (!isMove) {
-                                    if (!isMenuLayout) {
-                                        mainLayout.removeView(menuStart);
-                                        mainLayout.addView(menuLayout);
-                                        isMenuLayout = true;
-                                    } else {
-                                        mainLayout.removeView(menuLayout);
-                                        mainLayout.addView(menuStart);
-                                        isMenuLayout = false;
-                                    }
+                                    mainLayout.removeView(menuStart);
+                                    mainLayout.addView(menuLayout);
+                                    isMenuLayout = true;
                                 }
                                 break;
                             case classLoader.MotionEvent.ACTION_MOVE.value:
-                                view.setX(event.getRawX() + initialX);
-                                view.setY(event.getRawY() + initialY);
+                                mainLayout.setX(event.getRawX() + initialX);
+                                mainLayout.setY(event.getRawY() + initialY);
                                 let deltaTime = Date.now() - initialTouchTime;
-                                if (deltaTime > 200) isMove = true;
+                                if (deltaTime > 100) isMove = true;
                                 break;
                             default:
                                 return false;
@@ -306,7 +301,43 @@ Java.perform(function() {
                     }
                 }
             });
-            mainLayout.setOnTouchListener(MainLayoutOnTouchListener.$new());
+            menuStart.setOnTouchListener(MenuStartOnTouchListener.$new());
+            
+            // Touch listener for menu bar (drag entire menu)
+            const MenuBarOnTouchListener = Java.registerClass({
+                name: 'com.terminal.bar' + Math.random().toString(36).substr(2, 9),
+                implements: [classLoader.View_OnTouchListener],
+                methods: {
+                    onTouch(view, event) {
+                        switch (event.getAction()) {
+                            case classLoader.MotionEvent.ACTION_DOWN.value:
+                                initialX = mainLayout.getX() - event.getRawX();
+                                initialY = mainLayout.getY() - event.getRawY();
+                                isMove = false;
+                                initialTouchTime = Date.now();
+                                break;
+                            case classLoader.MotionEvent.ACTION_UP.value:
+                                if (!isMove) {
+                                    // Tap to minimize
+                                    mainLayout.removeView(menuLayout);
+                                    mainLayout.addView(menuStart);
+                                    isMenuLayout = false;
+                                }
+                                break;
+                            case classLoader.MotionEvent.ACTION_MOVE.value:
+                                mainLayout.setX(event.getRawX() + initialX);
+                                mainLayout.setY(event.getRawY() + initialY);
+                                let deltaTime = Date.now() - initialTouchTime;
+                                if (deltaTime > 100) isMove = true;
+                                break;
+                            default:
+                                return false;
+                        }
+                        return true;
+                    }
+                }
+            });
+            menuBarLayout.setOnTouchListener(MenuBarOnTouchListener.$new());
             
             // Add to activity
             activity.addContentView(contentView, contentView.getLayoutParams());
