@@ -214,9 +214,15 @@ Java.perform(function() {
             createTab(3, 'Misc');
             
             // Set first tab as active
-            const firstTabBg = tabButtons[0].getBackground();
-            firstTabBg.setColor(classLoader.Color.parseColor(OBSIDIAN_ACCENT));
-            tabButtons[0].setTextColor(classLoader.Color.parseColor(OBSIDIAN_TEXT));
+            Java.scheduleOnMainThread(function() {
+                try {
+                    const firstTabBg = tabButtons[0].getBackground();
+                    firstTabBg.setColor(classLoader.Color.parseColor(OBSIDIAN_ACCENT));
+                    tabButtons[0].setTextColor(classLoader.Color.parseColor(OBSIDIAN_TEXT));
+                } catch(e) {
+                    console.log('[!] Could not set initial tab color: ' + e);
+                }
+            });
             
             menuBarLayout.addView(tabBar);
             
